@@ -1,0 +1,12 @@
+﻿
+@{
+    ViewData["Title"] = "NewUser";
+}
+
+<h1>Welcome</h1>
+<h3>Please enter your name:</h3>
+@using (Html.BeginForm("NewUser", "Home", FormMethod.Post))
+{ 
+    @Html.TextBox("name") <input type="submit" value="submit"/>
+}
+

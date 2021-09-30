@@ -1,0 +1,58 @@
+﻿@model SD6503_DHLPROJECT.Models.TransactionTable
+
+@{
+    ViewData["Title"] = "PayBack";
+}
+
+<h1>PayBack</h1>
+
+<h4>TransactionTable</h4>
+<hr />
+
+<div class="row">
+    <div class="col-12">
+        <div class="form-group row">
+            <div class="col-4">
+                <label asp-for="FromAccount"></label>
+            </div>
+            <div class="col-4">
+                <label asp-for="ToAccount"></label>
+            </div>
+            <div class="col-4">
+                <label asp-for="PaybackAmount"></label>
+            </div>
+        </div>
+
+        <form asp-action="PayBack">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group row">
+                <div class="col-4">
+                    <select asp-for="FromAccount" asp-items="ViewBag.FromAccount" class="form-control">
+                    </select>
+                    <span asp-validation-for="FromAccount" class="text-danger"></span>
+                </div>
+                <div class="col-4">
+                    <select asp-for="ToAccount" asp-items="ViewBag.ToAccount" class="form-control">
+                    </select>
+                    <span asp-validation-for="ToAccount" class="text-danger"></span>
+                </div>
+                <div class="col-4">
+                    <input asp-for="PaybackAmount" class="form-control" />
+                    <span asp-validation-for="PaybackAmount" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-8 offset-2 row">
+                    <div class="col">
+                        <input type="submit" class="btn btn-info w-75" value="Create" />
+                    </div>
+                    <div class="col">
+                        <a asp-action="LoggedIn" class="btn btn-danger w-75">Back to List</a>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+

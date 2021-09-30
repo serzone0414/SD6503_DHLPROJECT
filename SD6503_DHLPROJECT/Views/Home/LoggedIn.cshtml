@@ -1,7 +1,107 @@
-﻿
+﻿@model IEnumerable<SD6503_DHLPROJECT.Models.TransactionTable>
+
+
 @{
-    ViewData["Title"] = "Loggedin";
+        ViewData["Title"] = "Loggedin";
 }
 
-<h1>Hello @ViewBag.Username @ViewBag.IsAdmin</h1>
+<h1>Hello, @ViewBag.Username </h1>
 
+
+<div class="container p-3">
+    <div class="row pt-4">
+        <div class="col-6">
+            <h2 class="text-primary">Your Balance is:   $@ViewBag.Balance</h2>
+        </div>
+        <div class="col-6 text-right" role="group">
+            <a asp-controller="Home" asp-action="Lend" class="btn btn-info w-25">Lend</a>
+            <a asp-controller="Home" asp-action="PayBack" class="btn btn-info w-25">Pay back</a>
+        </div>
+    </div>
+
+
+
+    <div style="float:right">
+        @using (Html.BeginForm("LoggedIn", "Home", FormMethod.Get))
+        {
+            <b>Search by:&emsp;</b>
+            @Html.RadioButton("searchBy", "Name", true) <text>Name &ensp;</text>
+            @Html.RadioButton("searchBy", "AccountNumber")<text>Account</text>
+            <br />
+            @Html.TextBox("search") <input type="submit" value="Search" />
+        }
+    </div>
+
+
+    @if (Model.Count() > 0)
+    {
+        <h2>Transactions</h2>
+        <table class="table table-bordered table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>
+                        From
+                    </th>
+                    <th>
+                        To
+                    </th>
+                    <th>
+                        Lend
+                    </th>
+                    <th>
+                        Pay-back
+                    </th>
+                    <th>
+                        Difference
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        @if (Int32.Parse(ViewBag.Identifier) == item.FromAccount)
+                        {
+                            <td width="20%">Your account</td>
+                        }
+                        else
+                        {
+                            @foreach (AccountDetail accountDetail in (List<AccountDetail>)ViewBag.accountsList)
+                            {
+                                if (accountDetail.AccountNumber == item.FromAccount)
+                                {
+                                    <td width="20%">@accountDetail.Name</td>
+                                }
+                            }
+                        }
+
+                        @if (Int32.Parse(ViewBag.Identifier) == item.ToAccount)
+                        {
+                            <td width="20%">Your account</td>
+                        }
+                        else
+                        {
+
+                            @foreach (AccountDetail accountDetail in (List<AccountDetail>)ViewBag.accountsList)
+                            {
+                                if (accountDetail.AccountNumber == item.ToAccount)
+                                {
+                                    <td width="20%">@accountDetail.Name</td>
+                                }
+                            }
+                        }
+                        <td width="20%">@item.LendAmount</td>
+                        <td width="20%">@item.PaybackAmount</td>
+                        <td width="20%">@(item.LendAmount-item.PaybackAmount)</td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No transaction yet</p>
+    }
+
+</div>
