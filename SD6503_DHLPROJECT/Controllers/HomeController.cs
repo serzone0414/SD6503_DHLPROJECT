@@ -285,5 +285,10 @@ namespace SD6503_DHLPROJECT.Controllers
 
             return RedirectToAction("LoggedIn");
         }
+
+        public IActionResult AddBalance()
+        {
+            return View();
+        }
     }
 }

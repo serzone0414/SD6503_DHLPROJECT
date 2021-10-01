@@ -2,7 +2,7 @@
 
 
 @{
-        ViewData["Title"] = "Loggedin";
+    ViewData["Title"] = "Loggedin";
 }
 
 <h1>Hello, @ViewBag.Username </h1>
@@ -12,10 +12,6 @@
     <div class="row pt-4">
         <div class="col-6">
             <h2 class="text-primary">Your Balance is:   $@ViewBag.Balance</h2>
-        </div>
-        <div class="col-6 text-right" role="group">
-            <a asp-controller="Home" asp-action="Lend" class="btn btn-info w-25">Lend</a>
-            <a asp-controller="Home" asp-action="PayBack" class="btn btn-info w-25">Pay back</a>
         </div>
     </div>
 
@@ -104,4 +100,11 @@
         <p>No transaction yet</p>
     }
 
+    <div class="col-6 text-right" role="group" style="float:right">
+        <a asp-controller="Home" asp-action="Lend" class="btn btn-info w-25">Lend</a>
+        <a asp-controller="Home" asp-action="PayBack" class="btn btn-info w-25">Pay back</a>
+    </div>
 </div>
+
+
+
