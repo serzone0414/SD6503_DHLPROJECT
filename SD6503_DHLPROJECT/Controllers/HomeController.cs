@@ -290,5 +290,32 @@ namespace SD6503_DHLPROJECT.Controllers
         {
             return View();
         }
+
+        [HttpPost]
+        public IActionResult AddBalance(string balance)
+        {
+            if (balance != null)
+            {
+                Double addedBalance;
+                bool isValidNumber = Double.TryParse(balance,out addedBalance);
+       
+                if (isValidNumber)
+                {
+                    if (addedBalance >= 0 && addedBalance < 99999)
+                    {
+                        AccountDetail accountDetail = _context.AccountDetails.Where(u => u.AccountNumber == Int32.Parse(HttpContext.Session.GetString("AccountNumber"))).FirstOrDefault();
+                        accountDetail.Balance = accountDetail.Balance + addedBalance;
+                        _context.Update(accountDetail);
+                        _context.SaveChanges();
+                        return RedirectToAction("LoggedIn");
+
+                    }
+                    else
+                        return View();
+                }
+
+            }
+            return View();
+        }
     }
 }
