@@ -63,9 +63,14 @@ namespace SD6503_DHLPROJECT.Controllers
                 _context.SaveChanges();
 
                 ModelState.Clear();
-                ViewBag.Message = user.Username + " is successfully registered.";
+                Login(user);
+                return RedirectToAction("LoggedIn");
             }
-            return RedirectToAction("Index");
+            else 
+            {
+                ModelState.AddModelError("", "Username and password are required");
+            }
+            return View();
         }
 
         public ActionResult Login()
