@@ -173,10 +173,12 @@ namespace SD6503_DHLPROJECT.Controllers
 
         public IActionResult Lend()
         {
+
             if (HttpContext.Session.GetString("AccountNumber") != null)
             {
                 var accountDetail = _context.AccountDetails.Where(u => u.Identifier == Int32.Parse(HttpContext.Session.GetString("Identifier"))).FirstOrDefault();
                 ViewData["FromAccount"] = new SelectList(_context.AccountDetails.Where(u => u.AccountNumber == accountDetail.AccountNumber), "AccountNumber", "Name");
+                ViewData["AllAccountList"] = new SelectList(_context.AccountDetails.Where(u => u.AccountNumber != accountDetail.AccountNumber), "AccountNumber", "Name");
                 return View();
             }
             else

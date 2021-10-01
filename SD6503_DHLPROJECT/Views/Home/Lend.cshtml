@@ -32,7 +32,8 @@
                     <span asp-validation-for="FromAccount" class="text-danger"></span>
                 </div>
                 <div class="col-4">
-                    <input asp-for="ToAccount" class="form-control" />
+                    <select asp-for="ToAccount" asp-items="ViewBag.AllAccountList" class="form-control">
+                    </select>
                     <span asp-validation-for="ToAccount" class="text-danger"></span>
                 </div>
                 <div class="col-4">
