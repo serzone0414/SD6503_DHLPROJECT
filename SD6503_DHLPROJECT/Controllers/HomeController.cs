@@ -280,12 +280,26 @@ namespace SD6503_DHLPROJECT.Controllers
         [HttpPost]
         public IActionResult NewUser(string name)
         {
-            AccountDetail accountDetail = _context.AccountDetails.Where(u => u.AccountNumber == Int32.Parse(HttpContext.Session.GetString("AccountNumber"))).FirstOrDefault();
-            accountDetail.Name = name;
-            _context.Update(accountDetail);
-            _context.SaveChanges();
+            if (name != null)
+            {
+                if (name.Length > 1 && name.Length < 30)
+                {
+                    bool hasNumber = (name).Any(char.IsDigit);
+                    if (hasNumber == false)
+                    {
+                        AccountDetail accountDetail = _context.AccountDetails.Where(u => u.AccountNumber == Int32.Parse(HttpContext.Session.GetString("AccountNumber"))).FirstOrDefault();
+                        accountDetail.Name = name;
+                        _context.Update(accountDetail);
+                        _context.SaveChanges();
+                        return RedirectToAction("LoggedIn");
+                    }
+                    else return View();
+                }
+                else return View();
+            }
+            else
+                return View();
 
-            return RedirectToAction("LoggedIn");
         }
 
         public IActionResult AddBalance()
