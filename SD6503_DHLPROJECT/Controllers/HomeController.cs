@@ -210,14 +210,18 @@ namespace SD6503_DHLPROJECT.Controllers
             {
                 if (transactionTable.LendAmount < 0)
                 {
-                    return RedirectToAction("LoggedIn");
+                    ViewBag.lendAmountMessage = "Amount cannot be negative.";
+                    Lend();
+                    return View();
                 }
                 else
                 {
                     var fromAccount = _context.Set<AccountDetail>().SingleOrDefault(o => o.AccountNumber == transactionTable.FromAccount);
                     if (transactionTable.LendAmount > fromAccount.Balance)
                     {
-                        return RedirectToAction("LoggedIn");
+                        ViewBag.lendAmountMessage = "You do not have enough balance.";
+                        Lend();
+                        return View();
                     }
                     else
                     {
@@ -236,12 +240,16 @@ namespace SD6503_DHLPROJECT.Controllers
                             _context.Add(transactionTable);
                         }
                         await _context.SaveChangesAsync();
+                        ViewBag.lendAmountMessage = "";
                         return RedirectToAction("LoggedIn");
                     }
                 }
             }
             //ViewData["FromAccount"] = new SelectList(_context.AccountDetails, "AccountNumber", "Name", transactionTable.FromAccount);
-                return RedirectToAction("LoggedIn");
+            ViewBag.lendAmountMessage = "Invalid amount.";
+            //return RedirectToAction("Lend");
+            Lend();
+            return View();
         }
 
         public IActionResult PayBack()
@@ -278,16 +286,20 @@ namespace SD6503_DHLPROJECT.Controllers
         {
             if (ModelState.IsValid)
             {
-                //number is minus 
                 if (transactionTable.PaybackAmount < 0)
-                {
-                    return RedirectToAction("LoggedIn");
+                {  
+                    //number is minus 
+                    ViewBag.paybackAmountMessage = "Cannot be negative number.";
+                    PayBack();
+                    return View();
                 }
                 var fromAccount = _context.Set<AccountDetail>().SingleOrDefault(o => o.AccountNumber == transactionTable.FromAccount);
                 if (transactionTable.PaybackAmount > fromAccount.Balance)
                 {
                     //not enough money
-                    return RedirectToAction("LoggedIn");
+                    ViewBag.paybackAmountMessage = "You do not have enough balance.";
+                    PayBack();
+                    return View();
                 }
                 else 
                 {
@@ -297,7 +309,9 @@ namespace SD6503_DHLPROJECT.Controllers
                     if (transactionTable.PaybackAmount > differnce)
                     {
                         //Can not pay back more than the difference.
-                        return RedirectToAction("LoggedIn");
+                        ViewBag.paybackAmountMessage = "You do not need to payback that much.";
+                        PayBack();
+                        return View();
                     }
                     if (existTransaction != null)
                     {
@@ -313,11 +327,14 @@ namespace SD6503_DHLPROJECT.Controllers
                     toAccount.Balance = toAccount.Balance + transactionTable.PaybackAmount;
 
                     await _context.SaveChangesAsync();
+                    ViewBag.paybackAmountMessage = "";
                     return RedirectToAction("LoggedIn");
                 }
             }
             ViewData["FromAccount"] = new SelectList(_context.AccountDetails, "AccountNumber", "Name", transactionTable.FromAccount);
-            return RedirectToAction("LoggedIn");
+            ViewBag.paybackAmountMessage = "Invalid number.";
+            PayBack();
+            return View();
         }
 
         public IActionResult NewUser()
@@ -381,14 +398,19 @@ namespace SD6503_DHLPROJECT.Controllers
                         accountDetail.Balance = accountDetail.Balance + addedBalance;
                         _context.Update(accountDetail);
                         _context.SaveChanges();
+                        ViewBag.addAmountMessage = "";
                         return RedirectToAction("LoggedIn");
 
                     }
                     else
+                    {
+                        ViewBag.addAmountMessage = "Invalid input.";
                         return View();
+                    }               
                 }
 
             }
+            ViewBag.addAmountMessage = "Invalid input.";
             return View();
         }
     }
