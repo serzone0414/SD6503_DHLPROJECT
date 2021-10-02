@@ -97,8 +97,8 @@ namespace SD6503_DHLPROJECT.Controllers
             return View();
         }
 
-
-        public ActionResult LoggedIn(string searchBy, string search)
+        [HttpGet]
+        public ActionResult LoggedIn(string searchBy, string search, string sortBy)
         {
             if (HttpContext.Session.GetString("Identifier") != null)
             {
@@ -123,7 +123,18 @@ namespace SD6503_DHLPROJECT.Controllers
                 if (search == null)
                 {
                     IList<TransactionTable> relatedTransactionList = new List<TransactionTable>();
-                    return View(_context.TransactionTables.Where(u => u.FromAccount == accountDetail.AccountNumber || u.ToAccount == accountDetail.AccountNumber).ToList());
+                    if (sortBy == "LendAmount")
+                    {
+                        return View(_context.TransactionTables.Where(u => u.FromAccount == accountDetail.AccountNumber || u.ToAccount == accountDetail.AccountNumber).OrderByDescending(t => t.LendAmount).ToList());
+                    }
+                    else if (sortBy == "PayBackAmount")
+                    {
+                        return View(_context.TransactionTables.Where(u => u.FromAccount == accountDetail.AccountNumber || u.ToAccount == accountDetail.AccountNumber).OrderByDescending(t => t.PaybackAmount).ToList());
+                    }
+                    else 
+                    {
+                        return View(_context.TransactionTables.Where(u => u.FromAccount == accountDetail.AccountNumber || u.ToAccount == accountDetail.AccountNumber).ToList());
+                    }            
                 }
                 else
                 {
@@ -154,7 +165,6 @@ namespace SD6503_DHLPROJECT.Controllers
                         {
                             return View(_context.TransactionTables.Where(u => u.FromAccount == 000000).ToList());
                         }
-
                     }
                 } 
             }
@@ -212,7 +222,7 @@ namespace SD6503_DHLPROJECT.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction("LoggedIn");
             }
-            ViewData["FromAccount"] = new SelectList(_context.AccountDetails, "AccountNumber", "Name", transactionTable.FromAccount);
+            //ViewData["FromAccount"] = new SelectList(_context.AccountDetails, "AccountNumber", "Name", transactionTable.FromAccount);
             return View(transactionTable);
         }
 
