@@ -131,6 +131,10 @@ namespace SD6503_DHLPROJECT.Controllers
                     {
                         return View(_context.TransactionTables.Where(u => u.FromAccount == accountDetail.AccountNumber || u.ToAccount == accountDetail.AccountNumber).OrderByDescending(t => t.PaybackAmount).ToList());
                     }
+                    else if (sortBy == "Difference")
+                    {
+                        return View(_context.TransactionTables.Where(u => u.FromAccount == accountDetail.AccountNumber || u.ToAccount == accountDetail.AccountNumber).OrderByDescending(t => t.LendAmount - t.PaybackAmount).ToList());
+                    }
                     else 
                     {
                         return View(_context.TransactionTables.Where(u => u.FromAccount == accountDetail.AccountNumber || u.ToAccount == accountDetail.AccountNumber).ToList());
