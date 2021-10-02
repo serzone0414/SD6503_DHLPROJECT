@@ -14,6 +14,8 @@ namespace SD6503_DHLPROJECT.Models
         }
 
         public int AccountNumber { get; set; }
+
+        [Required(ErrorMessage = "Name cannot be empty")]
         public string Name { get; set; }
 
         [Required(ErrorMessage = "Balance is required")]

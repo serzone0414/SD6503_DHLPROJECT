@@ -341,13 +341,23 @@ namespace SD6503_DHLPROJECT.Controllers
                         _context.SaveChanges();
                         return RedirectToAction("LoggedIn");
                     }
-                    else return View();
+                    else
+                    {
+                        ViewBag.inputNameMessage = "Name cannot have number.";
+                        return View();
+                    } 
                 }
-                else return View();
+                else
+                {
+                    ViewBag.inputNameMessage = "Name cannot be more than 30 characters.";
+                    return View();
+                } 
             }
             else
+            {
+                ViewBag.inputNameMessage = "Name cannot be empty";
                 return View();
-
+            }
         }
 
         public IActionResult AddBalance()
