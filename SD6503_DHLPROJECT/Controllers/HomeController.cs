@@ -208,26 +208,40 @@ namespace SD6503_DHLPROJECT.Controllers
         {
             if (ModelState.IsValid)
             {
-                var fromAccount = _context.Set<AccountDetail>().SingleOrDefault(o => o.AccountNumber == transactionTable.FromAccount);
-                fromAccount.Balance = fromAccount.Balance - transactionTable.LendAmount;
-                var toAccount = _context.Set<AccountDetail>().SingleOrDefault(o => o.AccountNumber == transactionTable.ToAccount);
-                toAccount.Balance = toAccount.Balance + transactionTable.LendAmount;
-
-                var existTransaction = _context.Set<TransactionTable>().Where(o => o.FromAccount == transactionTable.FromAccount && o.ToAccount == transactionTable.ToAccount).FirstOrDefault();
-                //var existTransaction = _context.Set<TransactionTable>().SingleOrDefault(o => o.FromAccount == transactionTable.FromAccount && o.ToAccount == transactionTable.ToAccount);
-                if (existTransaction != null)
+                if (transactionTable.LendAmount < 0)
                 {
-                    existTransaction.LendAmount = existTransaction.LendAmount + transactionTable.LendAmount;
+                    return RedirectToAction("LoggedIn");
                 }
                 else
                 {
-                    _context.Add(transactionTable);
+                    var fromAccount = _context.Set<AccountDetail>().SingleOrDefault(o => o.AccountNumber == transactionTable.FromAccount);
+                    if (transactionTable.LendAmount > fromAccount.Balance)
+                    {
+                        return RedirectToAction("LoggedIn");
+                    }
+                    else
+                    {
+                        fromAccount.Balance = fromAccount.Balance - transactionTable.LendAmount;
+                        var toAccount = _context.Set<AccountDetail>().SingleOrDefault(o => o.AccountNumber == transactionTable.ToAccount);
+                        toAccount.Balance = toAccount.Balance + transactionTable.LendAmount;
+
+                        var existTransaction = _context.Set<TransactionTable>().Where(o => o.FromAccount == transactionTable.FromAccount && o.ToAccount == transactionTable.ToAccount).FirstOrDefault();
+                        //var existTransaction = _context.Set<TransactionTable>().SingleOrDefault(o => o.FromAccount == transactionTable.FromAccount && o.ToAccount == transactionTable.ToAccount);
+                        if (existTransaction != null)
+                        {
+                            existTransaction.LendAmount = existTransaction.LendAmount + transactionTable.LendAmount;
+                        }
+                        else
+                        {
+                            _context.Add(transactionTable);
+                        }
+                        await _context.SaveChangesAsync();
+                        return RedirectToAction("LoggedIn");
+                    }
                 }
-                await _context.SaveChangesAsync();
-                return RedirectToAction("LoggedIn");
             }
             //ViewData["FromAccount"] = new SelectList(_context.AccountDetails, "AccountNumber", "Name", transactionTable.FromAccount);
-            return View(transactionTable);
+                return RedirectToAction("LoggedIn");
         }
 
         public IActionResult PayBack()
@@ -264,26 +278,46 @@ namespace SD6503_DHLPROJECT.Controllers
         {
             if (ModelState.IsValid)
             {
+                //number is minus 
+                if (transactionTable.PaybackAmount < 0)
+                {
+                    return RedirectToAction("LoggedIn");
+                }
                 var fromAccount = _context.Set<AccountDetail>().SingleOrDefault(o => o.AccountNumber == transactionTable.FromAccount);
-                fromAccount.Balance = fromAccount.Balance - transactionTable.PaybackAmount;
-                var toAccount = _context.Set<AccountDetail>().SingleOrDefault(o => o.AccountNumber == transactionTable.ToAccount);
-                toAccount.Balance = toAccount.Balance + transactionTable.PaybackAmount;
+                if (transactionTable.PaybackAmount > fromAccount.Balance)
+                {
+                    //not enough money
+                    return RedirectToAction("LoggedIn");
+                }
+                else 
+                {
+                    var existTransaction = _context.Set<TransactionTable>().Where(o => o.ToAccount == transactionTable.FromAccount && o.FromAccount == transactionTable.ToAccount).FirstOrDefault();
+                    //var existTransaction = _context.Set<TransactionTable>().SingleOrDefault(o => o.FromAccount == transactionTable.FromAccount && o.ToAccount == transactionTable.ToAccount);
+                    double differnce = existTransaction.LendAmount - existTransaction.PaybackAmount;
+                    if (transactionTable.PaybackAmount > differnce)
+                    {
+                        //Can not pay back more than the difference.
+                        return RedirectToAction("LoggedIn");
+                    }
+                    if (existTransaction != null)
+                    {
+                        existTransaction.PaybackAmount = existTransaction.PaybackAmount + transactionTable.PaybackAmount;
+                    }
+                    else
+                    {
+                        _context.Add(transactionTable);
+                    }
 
-                var existTransaction = _context.Set<TransactionTable>().Where(o => o.ToAccount == transactionTable.FromAccount && o.FromAccount == transactionTable.ToAccount).FirstOrDefault();
-                //var existTransaction = _context.Set<TransactionTable>().SingleOrDefault(o => o.FromAccount == transactionTable.FromAccount && o.ToAccount == transactionTable.ToAccount);
-                if (existTransaction != null)
-                {
-                    existTransaction.PaybackAmount = existTransaction.PaybackAmount + transactionTable.PaybackAmount;
+                    fromAccount.Balance = fromAccount.Balance - transactionTable.PaybackAmount;
+                    var toAccount = _context.Set<AccountDetail>().SingleOrDefault(o => o.AccountNumber == transactionTable.ToAccount);
+                    toAccount.Balance = toAccount.Balance + transactionTable.PaybackAmount;
+
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction("LoggedIn");
                 }
-                else
-                {
-                    _context.Add(transactionTable);
-                }
-                await _context.SaveChangesAsync();
-                return RedirectToAction("LoggedIn");
             }
             ViewData["FromAccount"] = new SelectList(_context.AccountDetails, "AccountNumber", "Name", transactionTable.FromAccount);
-            return View(transactionTable);
+            return RedirectToAction("LoggedIn");
         }
 
         public IActionResult NewUser()
