@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SD6503_DHLPROJECT.Models;
+using Microsoft.AspNetCore.Http;
+
 
 namespace SD6503_DHLPROJECT.Controllers
 {
@@ -21,34 +23,56 @@ namespace SD6503_DHLPROJECT.Controllers
         // GET: AccountDetails
         public async Task<IActionResult> Index()
         {
-            var dhlDatabaseContext = _context.AccountDetails.Include(a => a.IdentifierNavigation);
-            return View(await dhlDatabaseContext.ToListAsync());
+            if (HttpContext.Session.GetString("Identifier") != null && HttpContext.Session.GetString("IsAdmin") == "True")
+            {
+                var dhlDatabaseContext = _context.AccountDetails.Include(a => a.IdentifierNavigation);
+                return View(await dhlDatabaseContext.ToListAsync());
+            }
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }
+              
         }
 
         // GET: AccountDetails/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
+            if (HttpContext.Session.GetString("Identifier") != null && HttpContext.Session.GetString("IsAdmin") == "True")
             {
-                return NotFound();
-            }
+                if (id == null)
+                {
+                    return NotFound();
+                }
 
-            var accountDetail = await _context.AccountDetails
-                .Include(a => a.IdentifierNavigation)
-                .FirstOrDefaultAsync(m => m.AccountNumber == id);
-            if (accountDetail == null)
+                var accountDetail = await _context.AccountDetails
+                    .Include(a => a.IdentifierNavigation)
+                    .FirstOrDefaultAsync(m => m.AccountNumber == id);
+                if (accountDetail == null)
+                {
+                    return NotFound();
+                }
+
+                return View(accountDetail);
+            }
+            else
             {
-                return NotFound();
-            }
-
-            return View(accountDetail);
+                return RedirectToAction("Index", "Home");
+            }       
         }
 
         // GET: AccountDetails/Create
         public IActionResult Create()
         {
-            ViewData["Identifier"] = new SelectList(_context.LoginAccounts, "Identifier", "Password");
-            return View();
+            if (HttpContext.Session.GetString("Identifier") != null && HttpContext.Session.GetString("IsAdmin") == "True")
+            {
+                ViewData["Identifier"] = new SelectList(_context.LoginAccounts, "Identifier", "Password");
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }
         }
 
         // POST: AccountDetails/Create
@@ -58,31 +82,46 @@ namespace SD6503_DHLPROJECT.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("AccountNumber,Name,Balance,Identifier")] AccountDetail accountDetail)
         {
-            if (ModelState.IsValid)
+            if (HttpContext.Session.GetString("Identifier") != null && HttpContext.Session.GetString("IsAdmin") == "True")
             {
-                _context.Add(accountDetail);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    _context.Add(accountDetail);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                ViewData["Identifier"] = new SelectList(_context.LoginAccounts, "Identifier", "Password", accountDetail.Identifier);
+                return View(accountDetail);
             }
-            ViewData["Identifier"] = new SelectList(_context.LoginAccounts, "Identifier", "Password", accountDetail.Identifier);
-            return View(accountDetail);
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }
         }
 
         // GET: AccountDetails/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            if (HttpContext.Session.GetString("Identifier") != null && HttpContext.Session.GetString("IsAdmin") == "True")
             {
-                return NotFound();
-            }
+                if (id == null)
+                {
+                    return NotFound();
+                }
 
-            var accountDetail = await _context.AccountDetails.FindAsync(id);
-            if (accountDetail == null)
-            {
-                return NotFound();
+                var accountDetail = await _context.AccountDetails.FindAsync(id);
+                if (accountDetail == null)
+                {
+                    return NotFound();
+                }
+                ViewData["Identifier"] = new SelectList(_context.LoginAccounts, "Identifier", "Password", accountDetail.Identifier);
+                return View(accountDetail);
             }
-            ViewData["Identifier"] = new SelectList(_context.LoginAccounts, "Identifier", "Password", accountDetail.Identifier);
-            return View(accountDetail);
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }
+          
         }
 
         // POST: AccountDetails/Edit/5
@@ -92,52 +131,68 @@ namespace SD6503_DHLPROJECT.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("AccountNumber,Name,Balance,Identifier")] AccountDetail accountDetail)
         {
-            if (id != accountDetail.AccountNumber)
+            if (HttpContext.Session.GetString("Identifier") != null && HttpContext.Session.GetString("IsAdmin") == "True")
             {
-                return NotFound();
-            }
+                if (id != accountDetail.AccountNumber)
+                {
+                    return NotFound();
+                }
 
-            if (ModelState.IsValid)
-            {
-                try
+                if (ModelState.IsValid)
                 {
-                    _context.Update(accountDetail);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!AccountDetailExists(accountDetail.AccountNumber))
+                    try
                     {
-                        return NotFound();
+                        _context.Update(accountDetail);
+                        await _context.SaveChangesAsync();
                     }
-                    else
+                    catch (DbUpdateConcurrencyException)
                     {
-                        throw;
+                        if (!AccountDetailExists(accountDetail.AccountNumber))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
                     }
+                    return RedirectToAction(nameof(Index));
                 }
-                return RedirectToAction(nameof(Index));
+                ViewData["Identifier"] = new SelectList(_context.LoginAccounts, "Identifier", "Password", accountDetail.Identifier);
+                return View(accountDetail);
             }
-            ViewData["Identifier"] = new SelectList(_context.LoginAccounts, "Identifier", "Password", accountDetail.Identifier);
-            return View(accountDetail);
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            
         }
 
         // GET: AccountDetails/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
+            if (HttpContext.Session.GetString("Identifier") != null && HttpContext.Session.GetString("IsAdmin") == "True")
             {
-                return NotFound();
-            }
+                if (id == null)
+                {
+                    return NotFound();
+                }
 
-            var accountDetail = await _context.AccountDetails
-                .Include(a => a.IdentifierNavigation)
-                .FirstOrDefaultAsync(m => m.AccountNumber == id);
-            if (accountDetail == null)
+                var accountDetail = await _context.AccountDetails
+                    .Include(a => a.IdentifierNavigation)
+                    .FirstOrDefaultAsync(m => m.AccountNumber == id);
+                if (accountDetail == null)
+                {
+                    return NotFound();
+                }
+
+                return View(accountDetail);
+            }
+            else
             {
-                return NotFound();
+                return RedirectToAction("Index", "Home");
             }
-
-            return View(accountDetail);
+           
         }
 
         // POST: AccountDetails/Delete/5
@@ -145,15 +200,32 @@ namespace SD6503_DHLPROJECT.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var accountDetail = await _context.AccountDetails.FindAsync(id);
-            _context.AccountDetails.Remove(accountDetail);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            if (HttpContext.Session.GetString("Identifier") != null && HttpContext.Session.GetString("IsAdmin") == "True")
+            {
+                var accountDetail = await _context.AccountDetails.FindAsync(id);
+                _context.AccountDetails.Remove(accountDetail);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
         }
 
         private bool AccountDetailExists(int id)
         {
-            return _context.AccountDetails.Any(e => e.AccountNumber == id);
+            if (HttpContext.Session.GetString("Identifier") != null && HttpContext.Session.GetString("IsAdmin") == "True")
+            {
+                return _context.AccountDetails.Any(e => e.AccountNumber == id);
+            }
+            else
+            {
+                return false;
+            }
+     
         }
+
     }
 }

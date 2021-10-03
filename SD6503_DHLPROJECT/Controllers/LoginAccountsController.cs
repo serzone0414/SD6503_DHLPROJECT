@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SD6503_DHLPROJECT.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace SD6503_DHLPROJECT.Controllers
 {
@@ -21,31 +22,52 @@ namespace SD6503_DHLPROJECT.Controllers
         // GET: LoginAccounts
         public async Task<IActionResult> Index()
         {
-            return View(await _context.LoginAccounts.ToListAsync());
+            if (HttpContext.Session.GetString("Identifier") != null && HttpContext.Session.GetString("IsAdmin") == "True")
+            {
+                return View(await _context.LoginAccounts.ToListAsync());
+            }
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }
         }
 
         // GET: LoginAccounts/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
+            if (HttpContext.Session.GetString("Identifier") != null && HttpContext.Session.GetString("IsAdmin") == "True")
             {
-                return NotFound();
-            }
+                if (id == null)
+                {
+                    return NotFound();
+                }
 
-            var loginAccount = await _context.LoginAccounts
-                .FirstOrDefaultAsync(m => m.Identifier == id);
-            if (loginAccount == null)
+                var loginAccount = await _context.LoginAccounts
+                    .FirstOrDefaultAsync(m => m.Identifier == id);
+                if (loginAccount == null)
+                {
+                    return NotFound();
+                }
+
+                return View(loginAccount);
+            }
+            else
             {
-                return NotFound();
+                return RedirectToAction("Index", "Home");
             }
-
-            return View(loginAccount);
         }
 
         // GET: LoginAccounts/Create
         public IActionResult Create()
         {
-            return View();
+            if (HttpContext.Session.GetString("Identifier") != null && HttpContext.Session.GetString("IsAdmin") == "True")
+            {
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }
         }
 
         // POST: LoginAccounts/Create
@@ -55,29 +77,43 @@ namespace SD6503_DHLPROJECT.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Username,Password,IsAdmin,Identifier")] LoginAccount loginAccount)
         {
-            if (ModelState.IsValid)
+            if (HttpContext.Session.GetString("Identifier") != null && HttpContext.Session.GetString("IsAdmin") == "True")
             {
-                _context.Add(loginAccount);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    _context.Add(loginAccount);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                return View(loginAccount);
             }
-            return View(loginAccount);
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }
         }
 
         // GET: LoginAccounts/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            if (HttpContext.Session.GetString("Identifier") != null && HttpContext.Session.GetString("IsAdmin") == "True")
             {
-                return NotFound();
-            }
+                if (id == null)
+                {
+                    return NotFound();
+                }
 
-            var loginAccount = await _context.LoginAccounts.FindAsync(id);
-            if (loginAccount == null)
-            {
-                return NotFound();
+                var loginAccount = await _context.LoginAccounts.FindAsync(id);
+                if (loginAccount == null)
+                {
+                    return NotFound();
+                }
+                return View(loginAccount);
             }
-            return View(loginAccount);
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }            
         }
 
         // POST: LoginAccounts/Edit/5
@@ -87,50 +123,65 @@ namespace SD6503_DHLPROJECT.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Username,Password,IsAdmin,Identifier")] LoginAccount loginAccount)
         {
-            if (id != loginAccount.Identifier)
+            if (HttpContext.Session.GetString("Identifier") != null && HttpContext.Session.GetString("IsAdmin") == "True")
             {
-                return NotFound();
-            }
+                if (id != loginAccount.Identifier)
+                {
+                    return NotFound();
+                }
 
-            if (ModelState.IsValid)
-            {
-                try
+                if (ModelState.IsValid)
                 {
-                    _context.Update(loginAccount);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!LoginAccountExists(loginAccount.Identifier))
+                    try
                     {
-                        return NotFound();
+                        _context.Update(loginAccount);
+                        await _context.SaveChangesAsync();
                     }
-                    else
+                    catch (DbUpdateConcurrencyException)
                     {
-                        throw;
+                        if (!LoginAccountExists(loginAccount.Identifier))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
                     }
+                    return RedirectToAction(nameof(Index));
                 }
-                return RedirectToAction(nameof(Index));
+                return View(loginAccount);
             }
-            return View(loginAccount);
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }           
         }
 
         // GET: LoginAccounts/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
+            if (HttpContext.Session.GetString("Identifier") != null && HttpContext.Session.GetString("IsAdmin") == "True")
             {
-                return NotFound();
-            }
+                if (id == null)
+                {
+                    return NotFound();
+                }
 
-            var loginAccount = await _context.LoginAccounts
-                .FirstOrDefaultAsync(m => m.Identifier == id);
-            if (loginAccount == null)
+                var loginAccount = await _context.LoginAccounts
+                    .FirstOrDefaultAsync(m => m.Identifier == id);
+                if (loginAccount == null)
+                {
+                    return NotFound();
+                }
+
+                return View(loginAccount);
+            }
+            else
             {
-                return NotFound();
+                return RedirectToAction("Index", "Home");
             }
-
-            return View(loginAccount);
+            
         }
 
         // POST: LoginAccounts/Delete/5
@@ -138,15 +189,30 @@ namespace SD6503_DHLPROJECT.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var loginAccount = await _context.LoginAccounts.FindAsync(id);
-            _context.LoginAccounts.Remove(loginAccount);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            if (HttpContext.Session.GetString("Identifier") != null && HttpContext.Session.GetString("IsAdmin") == "True")
+            {
+                var loginAccount = await _context.LoginAccounts.FindAsync(id);
+                _context.LoginAccounts.Remove(loginAccount);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }
         }
 
         private bool LoginAccountExists(int id)
         {
-            return _context.LoginAccounts.Any(e => e.Identifier == id);
+            if (HttpContext.Session.GetString("Identifier") != null && HttpContext.Session.GetString("IsAdmin") == "True")
+            {
+                return _context.LoginAccounts.Any(e => e.Identifier == id);
+            }
+            else
+            {
+                return false;
+            }
+
         }
     }
 }
