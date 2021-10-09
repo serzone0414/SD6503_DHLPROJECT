@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System.Threading;
+using OpenQA.Selenium.Support.UI;
+
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -15,11 +17,16 @@ namespace UnitTestProject1
     [TestClass]
     public class AutomatedUi
     {
+
+
+
         private readonly IWebDriver _driver;
         public AutomatedUi()
         {
             _driver = new ChromeDriver();
+
         }
+
 
         [TestMethod]
 
@@ -185,7 +192,7 @@ namespace UnitTestProject1
 
         [TestMethod]
 
-        public void LendFundsValid()
+        public void LendFundsTestValid()
         {
             _driver.Navigate().GoToUrl("http://localhost:5001/");
             _driver.Navigate().GoToUrl("http://localhost:5001/Home/Login");
@@ -194,9 +201,149 @@ namespace UnitTestProject1
             _driver.FindElement(By.Id("Password")).SendKeys("1234");
             _driver.FindElement(By.Id("Password")).SendKeys(Keys.Enter);
             _driver.Navigate().GoToUrl("http://localhost:5001/Home/Lend");
-            _driver.FindElement(By.Id("ToAccount")).Click();
+            var toAccount = _driver.FindElement(By.Id("ToAccount"));
+            var toAccountSelect = new SelectElement(toAccount);
+            toAccountSelect.SelectByText("Dawoo Jeong");
+            var lendAmount = _driver.FindElement(By.Id("LendAmount"));
+            lendAmount.SendKeys("10");
+            lendAmount.SendKeys(Keys.Enter);
+        }
+
+        public void LendFundsTestInvalidNumberTooLarge()
+        {
+            _driver.Navigate().GoToUrl("http://localhost:5001/");
+            _driver.Navigate().GoToUrl("http://localhost:5001/Home/Login");
+            Thread.Sleep(2000);
+            _driver.FindElement(By.Name("Username")).SendKeys("AutoTest");
+            _driver.FindElement(By.Id("Password")).SendKeys("1234");
+            _driver.FindElement(By.Id("Password")).SendKeys(Keys.Enter);
+            _driver.Navigate().GoToUrl("http://localhost:5001/Home/Lend");
+            var toAccount = _driver.FindElement(By.Id("ToAccount"));
+            var toAccountSelect = new SelectElement(toAccount);
+            toAccountSelect.SelectByText("Dawoo Jeong");
+            var lendAmount = _driver.FindElement(By.Id("LendAmount"));
+            lendAmount.SendKeys("1000000");
+            lendAmount.SendKeys(Keys.Enter);
 
         }
+
+        public void LendFundsTestInvalidString()
+        {
+            _driver.Navigate().GoToUrl("http://localhost:5001/");
+            _driver.Navigate().GoToUrl("http://localhost:5001/Home/Login");
+            Thread.Sleep(2000);
+            _driver.FindElement(By.Name("Username")).SendKeys("AutoTest");
+            _driver.FindElement(By.Id("Password")).SendKeys("1234");
+            _driver.FindElement(By.Id("Password")).SendKeys(Keys.Enter);
+            _driver.Navigate().GoToUrl("http://localhost:5001/Home/Lend");
+            var toAccount = _driver.FindElement(By.Id("ToAccount"));
+            var toAccountSelect = new SelectElement(toAccount);
+            toAccountSelect.SelectByText("Dawoo Jeong");
+            var lendAmount = _driver.FindElement(By.Id("LendAmount"));
+            lendAmount.SendKeys("Fifty");
+            lendAmount.SendKeys(Keys.Enter);
+
+        }
+
+
+        [TestMethod]
+
+        public void PayBackFundsTestValid()
+        {
+            _driver.Navigate().GoToUrl("http://localhost:5001/");
+            _driver.Navigate().GoToUrl("http://localhost:5001/Home/Login");
+            Thread.Sleep(2000);
+            _driver.FindElement(By.Name("Username")).SendKeys("Hamish");
+            _driver.FindElement(By.Id("Password")).SendKeys("1234");
+            _driver.FindElement(By.Id("Password")).SendKeys(Keys.Enter);
+            _driver.Navigate().GoToUrl("http://localhost:5001/Home/PayBack");
+            var toAccountPayback = _driver.FindElement(By.Id("ToAccount"));
+            var toAccountPaybackSelect = new SelectElement(toAccountPayback);
+            toAccountPaybackSelect.SelectByText("Janetta Canary");
+            _driver.FindElement(By.Id("PaybackAmount")).SendKeys("10");
+            _driver.FindElement(By.Id("PaybackAmount")).SendKeys(Keys.Enter);
+        }
+        [TestMethod]
+        public void PayBackFundsTestInvalidInputToLarge()
+        {
+            _driver.Navigate().GoToUrl("http://localhost:5001/");
+            _driver.Navigate().GoToUrl("http://localhost:5001/Home/Login");
+            Thread.Sleep(2000);
+            _driver.FindElement(By.Name("Username")).SendKeys("Hamish");
+            _driver.FindElement(By.Id("Password")).SendKeys("1234");
+            _driver.FindElement(By.Id("Password")).SendKeys(Keys.Enter);
+            _driver.Navigate().GoToUrl("http://localhost:5001/Home/PayBack");
+            var toAccountPayback = _driver.FindElement(By.Id("ToAccount"));
+            var toAccountPaybackSelect = new SelectElement(toAccountPayback);
+            toAccountPaybackSelect.SelectByText("Janetta Canary");
+            _driver.FindElement(By.Id("PaybackAmount")).SendKeys("100000000");
+            _driver.FindElement(By.Id("PaybackAmount")).SendKeys(Keys.Enter);
+        }
+        [TestMethod]
+        public void PayBackFundsTestInvalidString()
+        {
+            _driver.Navigate().GoToUrl("http://localhost:5001/");
+            _driver.Navigate().GoToUrl("http://localhost:5001/Home/Login");
+            Thread.Sleep(2000);
+            _driver.FindElement(By.Name("Username")).SendKeys("Hamish");
+            _driver.FindElement(By.Id("Password")).SendKeys("1234");
+            _driver.FindElement(By.Id("Password")).SendKeys(Keys.Enter);
+            _driver.Navigate().GoToUrl("http://localhost:5001/Home/PayBack");
+            var toAccountPayback = _driver.FindElement(By.Id("ToAccount"));
+            var toAccountPaybackSelect = new SelectElement(toAccountPayback);
+            toAccountPaybackSelect.SelectByText("Janetta Canary");
+            _driver.FindElement(By.Id("PaybackAmount")).SendKeys("Ten");
+            _driver.FindElement(By.Id("PaybackAmount")).SendKeys(Keys.Enter);
+
+
+        }
+
+        [TestMethod]
+
+        public void SearchTestWithData()
+        {
+            _driver.Navigate().GoToUrl("http://localhost:5001/");
+            _driver.Navigate().GoToUrl("http://localhost:5001/Home/Login");
+            Thread.Sleep(2000);
+
+            _driver.FindElement(By.Name("Username")).SendKeys("hamish");
+            _driver.FindElement(By.Id("Password")).SendKeys("1234");
+            _driver.FindElement(By.Id("Password")).SendKeys(Keys.Enter);
+            Thread.Sleep(2000);
+
+            _driver.FindElement(By.Id("search")).SendKeys("m");
+            _driver.FindElement(By.Id("search")).SendKeys(Keys.Enter);
+            Thread.Sleep(2000);
+
+
+        }
+
+        public void SearchTestReturnToFullList()
+        {
+            _driver.Navigate().GoToUrl("http://localhost:5001/");
+            _driver.Navigate().GoToUrl("http://localhost:5001/Home/Login");
+            Thread.Sleep(2000);
+
+            _driver.FindElement(By.Name("Username")).SendKeys("hamish");
+            _driver.FindElement(By.Id("Password")).SendKeys("1234");
+            _driver.FindElement(By.Id("Password")).SendKeys(Keys.Enter);
+            Thread.Sleep(2000);
+
+            _driver.FindElement(By.Id("search")).SendKeys("m");
+            _driver.FindElement(By.Id("search")).SendKeys(Keys.Enter);
+            Thread.Sleep(2000);
+
+            _driver.FindElement(By.Id("search")).SendKeys(Keys.Control + "a");
+            _driver.FindElement(By.Id("search")).SendKeys(Keys.Delete);
+            _driver.FindElement(By.Id("search")).SendKeys(Keys.Enter);
+            Thread.Sleep(2000);
+
+
+        }
+
+
+
+
 
 
 
