@@ -1,0 +1,53 @@
+﻿@model IEnumerable<SD6503_DHLPROJECT.Models.TransactionTable>
+
+@{
+    ViewData["Title"] = "Transaction";
+}
+
+<h1>Transaction</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ToAccount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LendAmount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PaybackAmount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FromAccountNavigation)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ToAccount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LendAmount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PaybackAmount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FromAccountNavigation.Name)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.TransactionNumber">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.TransactionNumber">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.TransactionNumber">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
